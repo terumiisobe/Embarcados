@@ -8,54 +8,34 @@
 f_asm:
 		//movimentaçao da imagem(64x96) inteira diretamente na memoria
 		//64(0x40)*96(0x60)=0x1800, ou seja a figura começa em 0x08 e termina em 0x1808
+		//ideia: deslocar toda a figura para cima e mover a primeira linha para o final
 		
-	next_line:
-		mov r0,0x08    //(r0 = y) guarda o valor de y (0-60)
-		mov r1,#40h    //(r1 = x) guarda o valor de x (0-40)
-		mov r3,0x1808  //ultima linha ultimo elemento
-		ldr r5,=figura
+		ldr r0,=figura	//r0 é a figura
+		mov r2,#0		//r2 é o contador de deslocamento coluna(0-39)
+		mov r4,#60		//r4 é o numero da linha
 		
-		sub r2,r3,r0  //testa se esta na ultima linha NAND(0->sim)
-		//bic r2,r0,#59h 
-		ITT MI //se N(egative)=1 THEN
-			
-		cbnz r0, outras_linhas	 
-		linha1:	
-			sub r3,r1	//ultima linha deslocado de x
-			ldrb r2,r3  //load em r2 o valor de r3
-			strb r0,r3
-			strb 
-		outras_linhas:
-			add r2, #41h
-			strb [r0, ]
-		linha60:
+	move_up:
+		sub r3,r0,#41h	//r3 é a linha anterior
+		ldrb r1,[r0,r2] 
+		strb r1,[r3,r2]
+		add r2,#1h
+		bic r1,r2,#40   //NAND, se r2=40 entao r1=0
+		cbnz r1, move_up
+		sub r4,#1		//contador da linha
+		add r0,#41h   	//desce a linha na figura  
+		mov r2,#0		//reseta o offset
 		
-/*	next_line:
-		mov r0,#0h    //(r0 = y) guarda o valor de y (0-60)
-		mov r1,#0h    //(r1 = x) guarda o valor de x (0-40)
-		mov r3,0x17c8 //ultima linha
-		ldr r5,=figura
+		cbnz r4,move_up	
+		ldr r0,=figura
+	move_line:			//chegou aqui->acabou a figura
+		mov r4,#17c8h	//primeiro elemento da ultima linha
+		ldrb r1,[r0,r2]
+		strb r1,[r4,r2]
+		add r2,#1h
+		bic r3,r2,#40h	//NAND, se r2=40 entao r3=0
+		cbnz r3,move_line
 		
-		bic r2,r0,#59h //testa se esta na ultima linha NAND(0->sim)
-		cbz r2, linha60
-		cbnz r0, outras_linhas	 
-		linha1:	
-			add r3, r1	//ultima linha deslocado de x
-			ldrb r2, r3 //load em r2 o valor de r3
-			strb r3, 
-		outras_linhas:	
-		linha60:
-	*/	
+		bx lr
 		
-        mov r0,#0xaa00 
-        mov r1,#0xbb
-        orrs r1,r0
-        
-        ldr r0,=figura
-        ldrb r2,[r0,#0]
-        ldrb r2,[r0,#6]
-        
-        ldr r0,=matriz
-        bx lr
-
-        END
+		END
+		
