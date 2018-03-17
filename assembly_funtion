@@ -1,0 +1,67 @@
+
+	GLOBAL panImage
+		
+	EXTERN airplaneImage
+	EXTERN carImage
+		
+	.type panImage, %function
+	
+panImage:
+	.fnstart
+	
+	cbz R0, airplane
+	
+	mov R4, #96d			; Number of columns in the image.
+	mov R3, #64d			; Setting line as multiplier.
+	ldr R2, carImage
+	cbz R1, right
+	
+; left translation here
+
+	
+	
+; index = new_i * 96 + new_j	
+right:
+	sub R3, #1
+	mov R8, #94				; Column index. Comeca na penultima coluna
+	mul R5, R4, R3			; Getting line index. line * 96
+	add R5, R2				; Getting the address for the line.
+	add R5, R8				; Getting the full address. line * 96 + column
+	ldrb R6, [R5]			; Loading byte at R6.
+	
+	add R5, #1				; Going to next column
+	
+	ldrb R7, [R5]			; R7 acting as a Buffer
+	strb R6, [R5]
+
+new_column_right:
+	sub R8, #1
+	
+	sub R5, #2
+	ldrb R6, [R5]
+	add R5, #1
+	strb R6, [R5]
+	
+	cbnz R8, new_column_right
+	
+	sub R5, #1				; Got to the first column.
+	strb R7, [R5]			; Saving the buffer in the first column.
+	cbnz R3, right			; Repeat for the next line.
+	
+	bx lr
+	
+airplane:
+	
+	ldr R2, airplaneImage
+	cbz R1, up
+	
+; down translation here
+	
+up:
+	
+	
+	bx lr
+	.fend
+	
+	END
+	
