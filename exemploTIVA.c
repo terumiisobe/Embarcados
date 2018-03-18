@@ -1,15 +1,15 @@
 /*============================================================================
- *                    Exemplos de utilizaÁ„o do Kit
+ *                    Exemplos de utiliza√ß√£o do Kit
  *              EK-TM4C1294XL + Educational BooterPack MKII 
  *---------------------------------------------------------------------------*
- *                    Prof. AndrÈ Schneider de Oliveira
- *            Universidade TecnolÛgica Federal do Paran· (UTFPR)
+ *                    Prof. Andr√© Schneider de Oliveira
+ *            Universidade Tecnol√≥gica Federal do Paran√° (UTFPR)
  *===========================================================================
  * Autores das bibliotecas:
  * 		Allan Patrick de Souza - <allansouza@alunos.utfpr.edu.br>
  * 		Guilherme Jacichen     - <jacichen@alunos.utfpr.edu.br>
  * 		Jessica Isoton Sampaio - <jessicasampaio@alunos.utfpr.edu.br>
- * 		Mariana Carri„o        - <mcarriao@alunos.utfpr.edu.br>
+ * 		Mariana Carri√£o        - <mcarriao@alunos.utfpr.edu.br>
  *===========================================================================*/
 #include "cmsis_os.h"
 #include "TM4C129.h"                    // Device header
@@ -22,6 +22,7 @@
 
 #include "buttons.h"
 #include "airplane.h"
+#include "car.h"
 #include "cfaf128x128x16.h"
 
 #define LED_A      0
@@ -32,6 +33,10 @@
 
 //To print on the screen
 tContext sContext;
+
+extern void panImage(void);
+extern int direcao; 
+extern int tipo;
 
 void init_all(){
 	cfaf128x128x16Init(); 
@@ -46,10 +51,35 @@ int main (void) {
   unsigned char pixelColor;
 	int i, j, index, translationY = 0;
 	int new_i, new_j;
-	bool s1_press, s2_press, origColorMode = true; //origColorMode para alterar a coloraÁ„o da imagem
+	int delay = 1000000;
+	bool s1_press, s2_press, origColorMode = true; //origColorMode para alterar a colora√ß√£o da imagem
+	
+	direcao = 1;
+	tipo = 0;
 	
 	init_all();
 	
+	GrContextInit(&sContext, &g_sCfaf128x128x16);
+	GrFlush(&sContext);
+	
+	panImage();
+
+	for(;;){
+		for( i = 0; i < 64; i++){
+						for( j = 0; j < 96; j++){
+							index = i*96 + j;
+							pixelColor = carImage[index];
+							
+							if (pixelColor <= 128 && origColorMode)
+									cfaf128x128x16PixelDraw(&sContext, j, i, 0);
+							else
+									cfaf128x128x16PixelDraw(&sContext, j, i, 0xFFFF);
+						}
+		}
+	}
+		// Delay.
+		for (i = 0; i < delay; i++);
+/*	
 	GrContextInit(&sContext, &g_sCfaf128x128x16);
 	GrFlush(&sContext);
 	
@@ -76,15 +106,29 @@ int main (void) {
 					cfaf128x128x16PixelDraw(&sContext, j, i, 0xFFFF);
 			}
 		}
-		
-		// Delay.
-		for (i = 0; i < 1000000; i++);
-		
+*/		
+
+/*		
 		translationY++;
+		
+		s1_press = button_read_s1();
+		s2_press = button_read_s2();
+		
+		if(s1_press == true) 
+			origColorMode = false;
+		else 
+			origColorMode = true;
+		
+		if(s2_press == true)
+			delay = 100000;
+		else	
+			delay = 1000000;
+*/		
 		
 	}
 	
 /*	Botoes 	*/			
+				
 			/*s1_press = button_read_s1();
 			s2_press = button_read_s2();
 
@@ -102,7 +146,7 @@ int main (void) {
 			GrContextForegroundSet(&sContext, ClrWhite);
 			GrStringDraw(&sContext,(char*)pbufx, -1, (sContext.psFont->ui8MaxWidth)*6,  (sContext.psFont->ui8Height+2)*8, true);
 			GrStringDraw(&sContext,(char*)pbufy, -1,  (sContext.psFont->ui8MaxWidth)*11, (sContext.psFont->ui8Height+2)*8, true);
+*/			
 			
-			*/
 				
-}
+
