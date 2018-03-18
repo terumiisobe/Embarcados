@@ -1,15 +1,15 @@
 /*============================================================================
- *                    Exemplos de utilizaÁ„o do Kit
+ *                    Exemplos de utiliza√ß√£o do Kit
  *              EK-TM4C1294XL + Educational BooterPack MKII 
  *---------------------------------------------------------------------------*
- *                    Prof. AndrÈ Schneider de Oliveira
- *            Universidade TecnolÛgica Federal do Paran· (UTFPR)
+ *                    Prof. Andr√© Schneider de Oliveira
+ *            Universidade Tecnol√≥gica Federal do Paran√° (UTFPR)
  *===========================================================================
  * Autores das bibliotecas:
  * 		Allan Patrick de Souza - <allansouza@alunos.utfpr.edu.br>
  * 		Guilherme Jacichen     - <jacichen@alunos.utfpr.edu.br>
  * 		Jessica Isoton Sampaio - <jessicasampaio@alunos.utfpr.edu.br>
- * 		Mariana Carri„o        - <mcarriao@alunos.utfpr.edu.br>
+ * 		Mariana Carri√£o        - <mcarriao@alunos.utfpr.edu.br>
  *===========================================================================*/
 #include "cmsis_os.h"
 #include "TM4C129.h"                    // Device header
@@ -35,6 +35,8 @@
 tContext sContext;
 
 extern void panImage(void);
+extern int direcao; 
+extern int tipo;
 
 void init_all(){
 	cfaf128x128x16Init(); 
@@ -50,7 +52,10 @@ int main (void) {
 	int i, j, index, translationY = 0;
 	int new_i, new_j;
 	int delay = 1000000;
-	bool s1_press, s2_press, origColorMode = true; //origColorMode para alterar a coloraÁ„o da imagem
+	bool s1_press, s2_press, origColorMode = true; //origColorMode para alterar a colora√ß√£o da imagem
+	
+	direcao = 1;
+	tipo = 0;
 	
 	init_all();
 	
