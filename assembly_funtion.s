@@ -1,4 +1,4 @@
-	AREA    |.text|, CODE, READONLY, ALIGN=2
+		AREA    |.text|, CODE, READONLY, ALIGN=2
 		
 	GLOBAL panImage
 		
@@ -11,19 +11,16 @@
 		
 panImage
 	
-	mov R0, =tipo
+	ldr R0, =tipo
 	cmp R0, #1			; 0 means carImage and 1 means airplaneImage
 	beq airplane
 
-/*------------------------------*/
-/*			CAR IMAGE 			*/
-/*------------------------------*/
 	mov R4, #96			; Number of columns in the image.
 	mov R3, #64			; Setting line as multiplier.
 	ldr R2, =carImage
-	mov R1, =direcao	
+	ldr R1, =direcao	
 	cmp R1, #1			; 0 means left and 1 means right
-	beq R1, right			
+	beq right			
 	; index = linha * 96 + coluna	
 	
 	mov R3, #0				; Setting line as multiplier
@@ -37,7 +34,7 @@ left
 	sub R5, #1
 	
 	ldrb R7, [R5]
-	strb R6[R5]
+	strb R6, [R5]
 	
 new_column_left
 	add R8, #1 
@@ -88,16 +85,13 @@ new_column_right
 	
 	bx lr
 
-/*------------------------------*/
-/*		  AIRPLANE IMAGE 		*/
-/*------------------------------*/
 airplane
 	mov R4, #96			; Number of columns in the image.
 	mov R3, #64			; Setting line as multiplier.
 	ldr R2, =airplaneImage
-	mov R1, =direcao	
+	ldr R1, =direcao	
 	cmp R1, #1			; 0 means up and 1 means down
-	beq R1, down
+	beq down
 	; index = coluna * 64 + linha	
 up
 	mov R4, #0
@@ -107,10 +101,9 @@ up
 	add R5, R8			;Get full index
 	ldrb R6, [R5]
 	
-	sub 
+	;sub 
 	
 down
-	
 	
 	END
 	
