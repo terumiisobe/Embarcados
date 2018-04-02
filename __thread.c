@@ -49,62 +49,77 @@ osThreadId tid_Thread6;
   return(0);
 }
 
+int threadDelayTime = 10;
+int threadFlag = 0;
+
 void Thread1 (void const *argument) {
 			uint32_t time;
   while (1) {
-			time = osKernelSysTick()/ticks_factor;
-			osDelay(500);
-		//fprintf(file, "Thread1 : %i, %i\n", (int)time, (int)osKernelSysTick()/ticks_factor);
-		GrStringDraw(&sContext,"Thread 1", -1, 0, (sContext.psFont->ui8Height+2)*0, true);
+			if (threadFlag != 0) osThreadYield();
+		
+			//time = osKernelSysTick()/ticks_factor;
+			
+			threadFlag = (threadFlag + 1) % 6;
+			osThreadYield();
   }
 }
 
 void Thread2 (void const *argument) {
 			uint32_t time;
   while (1) {
-			time = osKernelSysTick()/ticks_factor;
-			osDelay(500);
-		//fprintf(file, "Thread2 : %i, %i\n", (int)time, (int)osKernelSysTick()/ticks_factor);
-		GrStringDraw(&sContext,"Thread 2", -1, 0, (sContext.psFont->ui8Height+2)*0, true);
+			if (threadFlag != 1) osThreadYield();
+		
+			//time = osKernelSysTick()/ticks_factor;
+			
+			threadFlag = (threadFlag + 1) % 6;
+			osThreadYield();
   }
 }
 
 void Thread3 (void const *argument) {
 			uint32_t time;
   while (1) {
-			time = osKernelSysTick()/ticks_factor;
-			osDelay(500);
-		//fprintf(file, "Thread3 : %i, %i\n", (int)time, (int)osKernelSysTick()/ticks_factor);
-		GrStringDraw(&sContext,"Thread 3", -1, 0, (sContext.psFont->ui8Height+2)*0, true);
+			if (threadFlag != 2) osThreadYield();
+		
+			//time = osKernelSysTick()/ticks_factor;
+			
+			threadFlag = (threadFlag + 1) % 6;
+			osThreadYield();
   }
 }
 
 void Thread4 (void const *argument) {
 			uint32_t time;
   while (1) {
-			time = osKernelSysTick()/ticks_factor;
-			osDelay(500);
-		//fprintf(file, "Thread4 : %i, %i\n", (int)time, (int)osKernelSysTick()/ticks_factor);
-		GrStringDraw(&sContext,"Thread 4", -1, 0, (sContext.psFont->ui8Height+2)*0, true);
+			if (threadFlag != 3) osThreadYield();
+		
+			//time = osKernelSysTick()/ticks_factor;
+			
+			threadFlag = (threadFlag + 1) % 6;
+			osThreadYield();
   }
 }
 
 void Thread5 (void const *argument) {
 			uint32_t time;
   while (1) {
-			time = osKernelSysTick()/ticks_factor;
-			osDelay(500);
-		//fprintf(file, "Thread5 : %i, %i\n", (int)time, (int)osKernelSysTick()/ticks_factor);
-		GrStringDraw(&sContext,"Thread 5", -1, 0, (sContext.psFont->ui8Height+2)*0, true);
+			if (threadFlag != 4) osThreadYield();
+		
+			//time = osKernelSysTick()/ticks_factor;
+			
+			threadFlag = (threadFlag + 1) % 6;
+			osThreadYield();
   }
 }
 
 void Thread6 (void const *argument) {
 			uint32_t time;
   while (1) {
-			time = osKernelSysTick()/ticks_factor;
-			osDelay(500);
-		//fprintf(file, "Thread6 : %i, %i\n", (int)time, (int)osKernelSysTick()/ticks_factor);
-		GrStringDraw(&sContext,"Thread 6", -1, 0, (sContext.psFont->ui8Height+2)*0, true);
+			if (threadFlag != 5) osThreadYield();
+		
+			//time = osKernelSysTick()/ticks_factor;
+			
+			threadFlag = (threadFlag + 1) % 6;
+			osThreadYield();
   }
 }

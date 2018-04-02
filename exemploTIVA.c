@@ -30,9 +30,9 @@
 tContext sContext;
 
 void init_all(){
-	cfaf128x128x16Init(); 
-	button_init();
-	joy_init();
+	//cfaf128x128x16Init(); 
+	//button_init();
+	//joy_init();
 	Init_Thread();
 }
 /*----------------------------------------------------------------------------
@@ -129,19 +129,26 @@ static void floatToString(float value, char *pBuf, uint32_t len, uint32_t base, 
  *---------------------------------------------------------------------------*/
 int main (void) {
 	
-		osKernelInitialize();
-		init_all();
+		uint32_t testeWord;
+		char processedWord;
+	
+		//osKernelInitialize();
+		//init_all();
+	
+	
+		testeWord = 0x5A990100;
+		processedWord = (char) testeWord;
 		
-		osKernelStart();
+		//osKernelStart();
 	
-		GrContextInit(&sContext, &g_sCfaf128x128x16);
+		//GrContextInit(&sContext, &g_sCfaf128x128x16);
 	
-	GrFlush(&sContext);
-	GrContextFontSet(&sContext, g_psFontFixed6x8);
-	
-	GrContextForegroundSet(&sContext, ClrWhite);
-	GrContextBackgroundSet(&sContext, ClrBlack);
+		//GrFlush(&sContext);
+		//GrContextFontSet(&sContext, g_psFontFixed6x8);
 		
-		osDelay(osWaitForever);
+		//GrContextForegroundSet(&sContext, ClrWhite);
+		//GrContextBackgroundSet(&sContext, ClrBlack);
+		
+		//osDelay(osWaitForever);
 	 
 }
