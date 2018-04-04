@@ -27,4 +27,7 @@ extern osThreadId tid_Thread4;
 extern osThreadId tid_Thread5; 
 extern osThreadId tid_Thread6; 
 
+extern char firstMessage[];
+extern const unsigned int firstMessage_length;
+
 #endif
