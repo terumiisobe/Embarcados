@@ -426,7 +426,7 @@ void Thread6 (void const *argument) {
 		
 		intToString(keyContender, buffer, 10, 10, 3);
 		
-		GrStringDraw(&sContext, (char*) buffer, -1, (sContext.psFont->ui8MaxWidth)*6, (sContext.psFont->ui8Height+2)*0, true);
+		GrStringDraw(&sContext, buffer, -1, (sContext.psFont->ui8MaxWidth)*6, (sContext.psFont->ui8Height+2)*0, true);
 		
 		lineToPrint = 2;
 		columnToPrint = 0;
@@ -455,7 +455,7 @@ void Thread6 (void const *argument) {
 			floatToString(decodingTime, buffer, 10, 10, 1, 5);
 			
 			GrStringDraw(&sContext, "Time in seconds:", -1, 0, (sContext.psFont->ui8Height+2)*5, true);
-			GrStringDraw(&sContext, (char*) buffer, -1, 0, (sContext.psFont->ui8Height+2)*6, true);
+			GrStringDraw(&sContext, buffer, -1, 0, (sContext.psFont->ui8Height+2)*6, true);
 			
 			while (1);	// Infinite loop;
 		}
