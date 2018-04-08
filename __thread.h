@@ -27,6 +27,10 @@ extern osThreadId tid_Thread4;
 extern osThreadId tid_Thread5; 
 extern osThreadId tid_Thread6; 
 
+extern int primes[];
+extern int nPrimes;
+
+
 extern char firstMessage[];
 extern const unsigned int firstMessage_length;
 
