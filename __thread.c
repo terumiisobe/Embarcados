@@ -5,7 +5,7 @@
 #include "grlib/grlib.h"
 #include "cfaf128x128x16.h"
 #include "math.h"
-
+#include "message.h"
 #include "__thread.h"
 
 // CMSIS RTOS header file
@@ -77,12 +77,12 @@ int ticks_factor = 10000;
 
 int Init_Thread (void) {
 	
-osThreadId tid_Thread1;                            // thread id
-osThreadId tid_Thread2; 
-osThreadId tid_Thread3; 
-osThreadId tid_Thread4; 
-osThreadId tid_Thread5; 
-osThreadId tid_Thread6; 
+	osThreadId tid_Thread1;                            // thread id
+	osThreadId tid_Thread2; 
+	osThreadId tid_Thread3; 
+	osThreadId tid_Thread4; 
+	osThreadId tid_Thread5; 
+	osThreadId tid_Thread6; 
 	
 	osThreadDef (Thread1, osPriorityNormal, 1, 0);     // thread object
 	osThreadDef (Thread2, osPriorityNormal, 1, 0);
@@ -108,61 +108,117 @@ osThreadId tid_Thread6;
   return(0);
 }
 
-int threadDelayTime = 10;
 int threadFlag = 1;
 
-unsigned int firstMessage_int[35];
-unsigned int firstMessage_decoded[35];
+unsigned int message_int[35];
+unsigned int message_decoded[35];
 int penultimo = 33;
 int ultimo = 34;
 unsigned int keyContender;
 bool isPrime = false;
 bool isMessageDecoded = false;
 
-int lastPrime;
+unsigned int lastPrime;
 	
-/*
 
-2^16 = 65536
-quantidade de numeros primos atÅE2^16 = 5910
-ordem das threads no codigo de acordo com a ordem de execuÁ„o
 
-falta fazer:
--lista de primos em primes[]
--casting do vetor de char firstMessage para int firstMessage_int
--decodificaÁ„o
--escrever no console
--incluir as outras mensagens 
--TESTAR UHUL
+void getLastPrime(unsigned int number) {
+	
+	unsigned int primeContender = number - 1;
+	unsigned int primeContenderSqrt;
+	unsigned int dividerTest;
+	
+	bool isPrime;
+	bool requiresFurtherAnalysis;
+	
+	int i;
+	
+	isPrime = false;
+	while (!isPrime)
+	{
+		isPrime = true;
+		requiresFurtherAnalysis = true;
+		primeContenderSqrt = sqrt(primeContender);
+	
+		for(i = 0; i < nPrimes; i++)
+		{
+			if (primes[i] > primeContenderSqrt)
+			{
+				requiresFurtherAnalysis = false;
+				break;
+			}
+			
+			if (primeContender % primes[i] == 0)
+			{
+				requiresFurtherAnalysis = false;
+				isPrime = false;
+				break;
+			}
+		}
+		
+		if (requiresFurtherAnalysis)
+		{
+			dividerTest = primes[i - 1] + 2;
+			
+			while (dividerTest < primeContenderSqrt)
+			{
+				if (primeContender % dividerTest == 0)
+				{
+					isPrime = false;
+					break;
+				}
+				
+				dividerTest += 2;
+			}
+		}
+		
+		if (!isPrime)
+		{
+			if (primeContender % 2 == 0)
+				primeContender--;
+			else
+				primeContender -= 2;
+		}
+	}
+	
+	lastPrime = primeContender;
+}
 
-*/
 
 /*------GeraÁ„o da chave------*/ 
 void Thread1 (void const *argument) { 
 	
 	int char_i, int_i = 0;
-	int msg_length = firstMessage_length;
+	int msg_length = message_length;
+	
+	unsigned char message_char[140];
+	
+	// Copying to working array.
+	for (char_i = 0; char_i < msg_length; char_i++)
+		message_char[char_i] = message5[char_i];
 	
 	// Loading message to int type.
-	for (char_i = 0; char_i < msg_length; char_i += 4) {
-		firstMessage_int[int_i++] = *(unsigned int *) (firstMessage + char_i);
-	}
+	for (char_i = 0; char_i < msg_length; char_i += 4)
+		message_int[int_i++] = *(unsigned int *) (message_char + char_i);
 	
-	keyContender = firstMessage_int[0] - 300;
-	//keyContender = 2;
+	// Setting starting point.
+	keyContender = message_int[0] - 126;
+	
+	// Getting the last prime prior to the starting keyContender.
+	getLastPrime(keyContender);
 
-  while (1) {
-			if (threadFlag != 1) osThreadYield();
-			
-			if (isPrime)
-				lastPrime = keyContender;
+  while (1)
+	{
+		while (threadFlag != 1)
+			osThreadYield();
 		
-			keyContender++;
-		
-		
-			threadFlag = 5;
-			osThreadYield();	
-			//osDelay(2000);
+		if (isPrime)
+			lastPrime = keyContender;
+	
+		keyContender++;
+	
+		threadFlag = 5;
+		osThreadYield();
   }
 }
 
@@ -172,36 +228,43 @@ void Thread1 (void const *argument) {
 void Thread5 (void const *argument) {
 	
 	int i;
-	int keyContenderSqrt;
-	int dividerTest;
+	unsigned int keyContenderSqrt;
+	unsigned int dividerTest;
 	
 	bool requiresFurtherAnalysis;
 	
-  while (1) {
-		if (threadFlag != 5) osThreadYield();
+  while (1)
+	{
+		while (threadFlag != 5)
+			osThreadYield();
 		
 		keyContenderSqrt = sqrt(keyContender);
 		requiresFurtherAnalysis = true;
 		isPrime = true;
 	
-		for(i = 0; i < nPrimes; i++) {
-			if (primes[i] > keyContenderSqrt) {
+		for(i = 0; i < nPrimes; i++)
+		{
+			if (primes[i] > keyContenderSqrt)
+			{
 				requiresFurtherAnalysis = false;
 				break;
 			}
-			if (keyContender % primes[i] == 0) {
+			if (keyContender % primes[i] == 0)
+			{
 				requiresFurtherAnalysis = false;
 				isPrime = false;
 				break;
 			}
 		}
 		
-		if (requiresFurtherAnalysis) {
-			
+		if (requiresFurtherAnalysis)
+		{
 			dividerTest = primes[i - 1] + 2;
 			
-			while (dividerTest < keyContenderSqrt) {
-				if (keyContender % dividerTest == 0) {
+			while (dividerTest < keyContenderSqrt)
+			{
+				if (keyContender % dividerTest == 0)
+				{
 					isPrime = false;
 					break;
 				}
@@ -218,17 +281,19 @@ void Thread5 (void const *argument) {
 /*------DecodificaÁ„o------*/
 void Thread2 (void const *argument) {
 	
-	//firstMessage_int = (int)firstMessage;//casting?
 	int i;
-  while (1) {
-			if (threadFlag != 2) osThreadYield();
+	
+  while (1)
+	{
+			while (threadFlag != 2)
+				osThreadYield();
 			
-			for(i = 0; i < 35; i++)
+			for(i = 0; i < 33; i++)
 			{
 				if (i % 2 == 0) 
-					firstMessage_decoded[i] = firstMessage_int[i] - keyContender;
+					message_decoded[i] = message_int[i] - keyContender;
 				else
-					firstMessage_decoded[i] = firstMessage_int[i] + keyContender;
+					message_decoded[i] = message_int[i] + keyContender;
 			}
 			
 			if(isPrime)
@@ -244,15 +309,16 @@ void Thread2 (void const *argument) {
 //divisao inteira da chave por 2 codificada
 void Thread3 (void const *argument) {
 	
-	bool first_test;
-  while (1) {
-			if (threadFlag != 3) osThreadYield();
+	unsigned int firstTestOp;
+	
+  while (1)
+	{
+			while (threadFlag != 3)
+				osThreadYield();
 			
-			first_test = false;
-			if(firstMessage_decoded[penultimo] == (int)(keyContender / 2))
-					first_test = true;
-			
-			if(first_test)
+			firstTestOp = keyContender / 2 + keyContender;
+
+			if (message_int[33] == firstTestOp)
 				threadFlag = 4;
 			else
 				threadFlag = 6;
@@ -265,19 +331,19 @@ void Thread3 (void const *argument) {
 //o quadrado da chave dividido pelo primo anterior a chave codificado
 void Thread4 (void const *argument) {
 	
-	bool second_test;
-	int second_test_op;
-  while (1) {
-			if (threadFlag != 4) osThreadYield();
+	unsigned int secondTestOp;
+	
+  while (1)
+	{
+			while (threadFlag != 4)
+				osThreadYield();
 		
-			second_test = false;
-			second_test_op = keyContender * keyContender / lastPrime;
-			if(firstMessage_decoded[ultimo] == second_test_op)
-					second_test = true;
+			secondTestOp = keyContender * keyContender / lastPrime - keyContender;
+			
+			if (message_int[34] == secondTestOp)
+					isMessageDecoded = true;
 			
 			threadFlag = 6;
-			if(second_test)	//when the second test turns positive the prime_key is correct
-				isMessageDecoded = true;
 			
 			osThreadYield();
   }
@@ -290,12 +356,16 @@ void Thread6 (void const *argument) {
 	int i;
 	int lineToPrint, columnToPrint;
 	char buffer[10];
-	char* msgCharacter;
+	char msgCharacter[2];
+	
+	msgCharacter[1] = '\0';
 	
 	GrStringDraw(&sContext,"Key: ", -1, 0, (sContext.psFont->ui8Height+2)*0, true);
 	
-  while (1) {
-		if (threadFlag != 6) osThreadYield();
+  while (1)
+	{
+		while (threadFlag != 6)
+			osThreadYield();
 		
 		intToString(keyContender, buffer, 10, 10, 3);
 		
@@ -303,21 +373,24 @@ void Thread6 (void const *argument) {
 		
 		lineToPrint = 2;
 		columnToPrint = 0;
-		for (i = 0; i < 33; i++) {
-			
-			msgCharacter = (char*) &firstMessage_decoded[i];
+		
+		for (i = 0; i < 33; i++)
+		{
+			msgCharacter[0] = (char) message_decoded[i];
 						
 			GrStringDraw(&sContext, msgCharacter, -1, (sContext.psFont->ui8MaxWidth)*columnToPrint, (sContext.psFont->ui8Height+2)*lineToPrint, true);
 			
 			columnToPrint++;
 			
-			if (columnToPrint == 10) {
+			if (columnToPrint == 17)
+			{
 				lineToPrint++;
 				columnToPrint = 0;
 			}
-		}				
+		}
 		
-		if (isMessageDecoded) {
+		if (isMessageDecoded)
+		{
 			GrStringDraw(&sContext, "Done", -1, 0, (sContext.psFont->ui8Height+2)*1, true);
 			while (1);	// Infinite loop;
 		}

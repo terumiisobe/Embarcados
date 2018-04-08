@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 extern int ticks_factor;
-extern FILE *file; 
 extern tContext sContext;
 
 extern int Init_Thread(void);														//Thread Initialization

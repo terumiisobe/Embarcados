@@ -15,22 +15,22 @@
 #include "TM4C129.h"                    // Device header
 #include <stdbool.h>
 #include "grlib/grlib.h"
-#include <stdio.h>
+#include "message.h"
 #include "__thread.h"
 
 /*----------------------------------------------------------------------------
  * include libraries from drivers
  *----------------------------------------------------------------------------*/
 
-#include "buttons.h"
-#include "cfaf128x128x16.h"
-#include "joy.h"
+//#include "buttons.h"
+//#include "cfaf128x128x16.h"
+//#include "joy.h"
 
 //To print on the screen
 tContext sContext;
 
 void init_all(){
-	//cfaf128x128x16Init(); 
+	cfaf128x128x16Init(); 
 	Init_Thread();
 }
 /*----------------------------------------------------------------------------
@@ -39,18 +39,19 @@ void init_all(){
 int main (void) {
 	
 		osKernelInitialize();
+	
 		init_all();
+	
+		GrContextInit(&sContext, &g_sCfaf128x128x16);
+	
+		GrFlush(&sContext);
+		GrContextFontSet(&sContext, g_psFontFixed6x8);
+		
+		GrContextForegroundSet(&sContext, ClrWhite);
+		GrContextBackgroundSet(&sContext, ClrBlack);
+			
 		
 		osKernelStart();
-	
-		//GrContextInit(&sContext, &g_sCfaf128x128x16);
-	
-		//GrFlush(&sContext);
-		//GrContextFontSet(&sContext, g_psFontFixed6x8);
-		
-		//GrContextForegroundSet(&sContext, ClrWhite);
-		//GrContextBackgroundSet(&sContext, ClrBlack);
 		
 		osDelay(osWaitForever);
-	 
 }
