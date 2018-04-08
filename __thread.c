@@ -69,6 +69,36 @@ static void intToString(int64_t value, char * pBuf, uint32_t len, uint32_t base,
 	} while(value > 0);
 }
 
+static void floatToString(float value, char *pBuf, uint32_t len, uint32_t base, uint8_t zeros, uint8_t precision){
+	static const char* pAscii = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	uint8_t start = 0xFF;
+	if(len < 2)
+		return;
+	
+	if (base < 2 || base > 36)
+		return;
+	
+	if(zeros + precision + 1 > len)
+		return;
+	
+	intToString((int64_t) value, pBuf, len, base, zeros);
+	while(pBuf[++start] != '\0' && start < len); 
+
+	if(start + precision + 1 > len)
+		return;
+	
+	pBuf[start+precision+1] = '\0';
+	
+	if(value < 0)
+		value = -value;
+	pBuf[start++] = '.';
+	while(precision-- > 0){
+		value -= (uint32_t) value;
+		value *= (float) base;
+		pBuf[start++] = pAscii[(uint32_t) value];
+	}
+}
+
 /*----------------------------------------------------------------------------
  *      Thread 1 'Thread_Name': Sample thread
  *---------------------------------------------------------------------------*/
@@ -119,6 +149,7 @@ bool isPrime = false;
 bool isMessageDecoded = false;
 
 unsigned int lastPrime;
+unsigned int decodingStart;
 	
 
 
@@ -184,12 +215,20 @@ void getLastPrime(unsigned int number) {
 	lastPrime = primeContender;
 }
 
+void displaySetup() {
+	
+	GrStringDraw(&sContext,"Key: ", -1, 0, 0, true);
+	GrStringDraw(&sContext,"Decoding", -1, 0, (sContext.psFont->ui8Height+2)*1, true);
+}
+
 
 /*------Geração da chave------*/ 
 void Thread1 (void const *argument) { 
 	
 	int char_i, int_i = 0;
 	int msg_length = message_length;
+	
+	bool isKeyContenderOdd = false;
 	
 	unsigned char message_char[140];
 	
@@ -201,8 +240,13 @@ void Thread1 (void const *argument) {
 	for (char_i = 0; char_i < msg_length; char_i += 4)
 		message_int[int_i++] = *(unsigned int *) (message_char + char_i);
 	
+	// Printing display static messages.
+	displaySetup();
+	
+	decodingStart = osKernelSysTick();
+	
 	// Setting starting point.
-	keyContender = message_int[0] - 126;
+	keyContender = message_int[0] - 127;
 	
 	// Getting the last prime prior to the starting keyContender.
 	getLastPrime(keyContender);
@@ -214,9 +258,22 @@ void Thread1 (void const *argument) {
 		
 		if (isPrime)
 			lastPrime = keyContender;
-	
-		keyContender++;
-	
+		
+		if (isKeyContenderOdd)
+		{
+			keyContender += 2;
+		}
+		else if (keyContender % 2 == 0)
+		{
+			keyContender++;
+			isKeyContenderOdd = true;
+		}
+		else
+		{
+			keyContender += 2;
+			isKeyContenderOdd = true;
+		}
+		
 		threadFlag = 5;
 		osThreadYield();
   }
@@ -358,9 +415,9 @@ void Thread6 (void const *argument) {
 	char buffer[10];
 	char msgCharacter[2];
 	
-	msgCharacter[1] = '\0';
+	float decodingTime;
 	
-	GrStringDraw(&sContext,"Key: ", -1, 0, (sContext.psFont->ui8Height+2)*0, true);
+	msgCharacter[1] = '\0';
 	
   while (1)
 	{
@@ -378,7 +435,7 @@ void Thread6 (void const *argument) {
 		{
 			msgCharacter[0] = (char) message_decoded[i];
 						
-			GrStringDraw(&sContext, msgCharacter, -1, (sContext.psFont->ui8MaxWidth)*columnToPrint, (sContext.psFont->ui8Height+2)*lineToPrint, true);
+			GrStringDraw(&sContext, msgCharacter, -1, (sContext.psFont->ui8MaxWidth) * columnToPrint, (sContext.psFont->ui8Height+2) * lineToPrint, true);
 			
 			columnToPrint++;
 			
@@ -391,7 +448,15 @@ void Thread6 (void const *argument) {
 		
 		if (isMessageDecoded)
 		{
-			GrStringDraw(&sContext, "Done", -1, 0, (sContext.psFont->ui8Height+2)*1, true);
+			decodingTime = (float)(osKernelSysTick() - decodingStart) / 120000000;
+			
+			GrStringDraw(&sContext, "Done    ", -1, 0, (sContext.psFont->ui8Height+2)*1, true);
+			
+			floatToString(decodingTime, buffer, 10, 10, 1, 5);
+			
+			GrStringDraw(&sContext, "Time in seconds:", -1, 0, (sContext.psFont->ui8Height+2)*5, true);
+			GrStringDraw(&sContext, (char*) buffer, -1, 0, (sContext.psFont->ui8Height+2)*6, true);
+			
 			while (1);	// Infinite loop;
 		}
 		
